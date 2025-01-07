@@ -1,0 +1,29 @@
+Cahier des charges
+
+Projet : Base sur Mars ave des missions à la Among Us
+
+Synopsis : 
+
+Tableau de répartition des tâches : 
+- Elie : 
+- Ali :
+- Léo : 
+
+Missions :
+- expédition sur mars en véhicule pour aller chercher des débris de satellite. Tempête => aucune visibilité. Radar pour se répérer.
+- plus d'électricité dans la base (donc plus de lumière) => Réparer l'alimentation/les circuits avec une lampe torche .
+- Fissures dans la base. La boucher (scotch/soudure) avant de manquer d'oxygène et de mourir (compte à rebours).
+- Planter des graines dans le sol pour faire pousser des plantes
+- Nettoyer les panneaux solaires à l'extérieur
+
+Fonctionnalités :
+- Technique de locomotion : téléportation (et voiture à l'extérieur). Faire attention à la cybersickness (-1)
+- Deux techniques de manipulation : missions
+- Un menu XR / fenêtre XR : 
+- Des sons d'UI : Ajouter des sons à chaque fois qu'une tâche est accomplie, alarme, tempête, sortie d'air à l'extérieur.
+- Des feedbacks / de l'affordance : validation des missions
+- Une méthode pour quitter : 
+- Un mode débug avec ue console : Mettre le mode debug dans la combinaison (quand on est à l'extérieur), et sur le tableau de bord de la base (quand on est à l'intérieur).
+- Des assets graphiques bien agencés pour former un unives cohérent : assets mars/espace, model base martienne...
+- Des sons diégétiques (si possibles spatialisés) 
+- Respect du thème : 
