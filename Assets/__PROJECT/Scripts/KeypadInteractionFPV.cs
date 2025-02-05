@@ -11,9 +11,10 @@ public class KeypadInteractionFPV : MonoBehaviour
     {
         var ray = cam.ScreenPointToRay(Input.mousePosition);
 
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetKeyDown(KeyCode.E))
         {
-            if (Physics.Raycast(ray, out var hit))
+                Debug.Log("E key pressed");
+                if (Physics.Raycast(ray, out var hit))
             {
                 if (hit.collider.TryGetComponent(out KeypadButton keypadButton))
                 {

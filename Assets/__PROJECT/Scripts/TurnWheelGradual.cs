@@ -23,7 +23,6 @@ public class TurnWheelGradual : MonoBehaviour
         if (isTurning)
         {
             RotateWheel(); // Continue la rotation tant que isTurning est vrai
-            Debug.Log("isTurning");
         }
     }
 

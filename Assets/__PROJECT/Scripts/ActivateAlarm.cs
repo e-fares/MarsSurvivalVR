@@ -104,7 +104,25 @@ public class ActivateAlarm : MonoBehaviour
     public void ToggleBlinking()
     {
         isBlinking = !isBlinking;
-        if (isBlinking) { Debug.Log("Alarme activée"); } else { Debug.Log("Alarme désactivée"); }
+        if (isBlinking) { 
+            Debug.Log("Alarme activée");
+            TurnOffAllLights();
+        } else 
+        { 
+            Debug.Log("Alarme désactivée"); 
+        }
+    }
+
+    void TurnOffAllLights()
+    {
+        Light[] allLights = FindObjectsOfType<Light>(); // Trouve toutes les lumières dans la scène
+
+        foreach (Light light in allLights)
+        {
+            light.enabled = false; // Éteint chaque lumière
+        }
+
+        Debug.Log("Toutes les lumières ont été éteintes !");
     }
 
     // Fonction pour jouer l'alarme en boucle
