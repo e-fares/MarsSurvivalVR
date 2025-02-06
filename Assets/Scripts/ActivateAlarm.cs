@@ -39,6 +39,7 @@ public class ActivateAlarm : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        ToggleBlinking();
         TurnOffAllLights();
         roomSpotlights = new List<GameObject>();
         for (int i = 0; i < parentSpotLights.childCount; i++)
@@ -72,17 +73,18 @@ public class ActivateAlarm : MonoBehaviour
         if (isBlinking)
         {
             // Si l'alarme n'a pas encore été jouée, on la joue en boucle
-            if (!alarmPlayed)
+/*            if (!alarmPlayed)
             {
                 PlayAlarm();
-            }
+            }*/
 
             // Interpolation de couleur pour les lumières
             float t = Mathf.PingPong(Time.time, 1f);
-
+            t = Mathf.Pow(t, 3);
             foreach (GameObject light in roomLights)
             {
-                light.GetComponent<Light>().color = Color.Lerp(Color.red, Color.white, t);
+                light.GetComponent<Light>().color = Color.Lerp(Color.black, Color.red, t);
+                light.GetComponent<Light>().intensity = Mathf.Lerp(0.0f, 2.0f, t);
             }
 
             foreach (GameObject spotLight in roomSpotlights)
@@ -133,6 +135,7 @@ public class ActivateAlarm : MonoBehaviour
 
         foreach (Light light in allLights)
         {
+            if(light.tag != "LightOn")
             light.enabled = false; // Éteint chaque lumière
         }
 
