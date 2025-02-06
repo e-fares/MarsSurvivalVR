@@ -59,13 +59,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
   m_Name: DigitsFonts
   m_EditorClassIdentifier: 
-  hashCode: 1154872298
+  hashCode: 843038820
   material: {fileID: 5608202080528317625}
-  materialHashCode: -1529142262
+  materialHashCode: -1566787772
   m_Version: 1.1.0
   m_SourceFontFileGUID: dac0b6093a93ead40bc10fb8c6eb32e3
-  m_SourceFontFile_EditorRef: {fileID: 12800000, guid: dac0b6093a93ead40bc10fb8c6eb32e3,
-    type: 3}
+  m_SourceFontFile_EditorRef: {fileID: 12800000, guid: dac0b6093a93ead40bc10fb8c6eb32e3, type: 3}
   m_SourceFontFile: {fileID: 0}
   m_AtlasPopulationMode: 0
   m_FaceInfo:
@@ -2449,15 +2448,14 @@ MonoBehaviour:
   tabSize: 10
 --- !u!21 &5608202080528317625
 Material:
-  serializedVersion: 8
+  serializedVersion: 6
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: DS-DIGIB SDF Material
   m_Shader: {fileID: 4800000, guid: 68e6db2ebdc24f95958faec2be5558d6, type: 3}
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
+  m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -2487,7 +2485,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    m_Ints: []
     m_Floats:
     - _Ambient: 0.5
     - _Bevel: 0.5

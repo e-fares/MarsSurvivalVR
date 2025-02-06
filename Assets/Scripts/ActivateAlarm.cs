@@ -45,7 +45,6 @@ public class ActivateAlarm : MonoBehaviour
         {
             Transform child = parentSpotLights.GetChild(i);
             roomSpotlights.Add(child.gameObject);
-            Debug.Log("Added: " + child.name);
         }
 
         if (alarmAudioSource != null && alarmClip != null)
@@ -128,13 +127,25 @@ public class ActivateAlarm : MonoBehaviour
         }
     }
 
-    void TurnOffAllLights()
+    public void TurnOffAllLights()
     {
         Light[] allLights = FindObjectsOfType<Light>(); // Trouve toutes les lumières dans la scène
 
         foreach (Light light in allLights)
         {
             light.enabled = false; // Éteint chaque lumière
+        }
+
+        Debug.Log("Toutes les lumières ont été éteintes !");
+    }
+
+    public void TurnOnAllLights()
+    {
+        Light[] allLights = FindObjectsOfType<Light>(); // Trouve toutes les lumières dans la scène
+
+        foreach (Light light in allLights)
+        {
+            light.enabled = true; // Allume chaque lumière
         }
 
         Debug.Log("Toutes les lumières ont été éteintes !");
