@@ -1,43 +1,49 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class GazeController : MonoBehaviour
 {
     public GameObject camera;
-    public float maxAngleX;
-    public float maxAngleY;
-    private float slope;
-    private float lastValue = -1;
+    public GameObject crate;
+    public string password;
 
-    public GameObject crate; // Reference to the Crate object
-    public string password;  // The password to display
+    [Header("Gaze Detection Settings")]
+    public float maxGazeAngle = 15f; // Max angle to consider the crate "looked at"
+    public float maxDistance = 6.0f;  // Max distance for the crate to react
+
+    [Header("Shake Effect")]
+    public float shakeDuration = 2.0f;
+    public float shakeMagnitude = 0.1f;
 
     private bool isShaking = false;
     private Coroutine shakeCoroutine;
     private GameObject text3D;
+    private Vector3 originalCratePosition;
 
+    /*public TMP_FontAsset customFont;*/
     void Start()
     {
-        Debug.Log(maxAngleX);
-        slope = (0f - 1f) / (maxAngleX - 0f);
-    }
-
-    void Update()
-    {
-        if (camera == null || crate == null)
+        if (crate == null || camera == null)
         {
             Debug.LogError("Camera or Crate is not assigned.");
             return;
         }
 
-        Vector3 direction = camera.transform.forward;
-        Vector3 cameraVec = transform.position - camera.transform.position;
-        cameraVec.Normalize();
-        float output = Vector3.Dot(direction, cameraVec);
+        originalCratePosition = crate.transform.position;
+    }
 
+    void Update()
+    {
+        if (crate == null || camera == null) return;
+
+        // Calculate gaze angle
+        Vector3 toCrate = (crate.transform.position - camera.transform.position).normalized;
+        float angle = Vector3.Angle(camera.transform.forward, toCrate);
         float distance = Vector3.Distance(camera.transform.position, crate.transform.position);
 
-        if (output < 0.999f && distance <= 6.0f)
+        // If looking at crate within range, start shaking
+        if (angle < maxGazeAngle && distance <= maxDistance)
         {
             if (!isShaking && text3D == null)
             {
@@ -55,55 +61,62 @@ public class GazeController : MonoBehaviour
 
     private IEnumerator ShakeCrate()
     {
-        if (crate == null)
-        {
-            Debug.LogError("Crate is not assigned.");
-            yield break;
-        }
+        if (crate == null) yield break;
 
         isShaking = true;
-        Vector3 originalPosition = crate.transform.position;
-        float shakeDuration = 2.0f;
-        float shakeMagnitude = 0.1f;
         float elapsed = 0.0f;
 
         while (elapsed < shakeDuration)
         {
-            float offsetX = UnityEngine.Random.Range(-1f, 1f) * shakeMagnitude;
-            float offsetY = UnityEngine.Random.Range(-1f, 1f) * shakeMagnitude;
-            crate.transform.position = originalPosition + new Vector3(offsetX, offsetY, 0);
+            // Shake with a smooth Lerp movement
+            Vector3 shakeOffset = new Vector3(
+                UnityEngine.Random.Range(-shakeMagnitude, shakeMagnitude),
+                UnityEngine.Random.Range(-shakeMagnitude, shakeMagnitude),
+                UnityEngine.Random.Range(-shakeMagnitude, shakeMagnitude) * 0.5f
+            );
+
+            crate.transform.position = Vector3.Lerp(crate.transform.position, originalCratePosition + shakeOffset, Time.deltaTime * 10f);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        crate.transform.position = originalPosition;
+        crate.transform.position = originalCratePosition;
         isShaking = false;
 
+        ShowPassword();
+    }
+    private void ShowPassword()
+    {
         // Create the 3D text object
         text3D = new GameObject("PasswordText");
-        text3D.transform.position = crate.transform.position + Vector3.up * 0.5f; // Position above crate
+
+        // Position it above the crate
+        text3D.transform.position = crate.transform.position + Vector3.up * 1.5f; // Raised more above the crate
 
         // Add TextMesh component
         TextMesh textMesh = text3D.AddComponent<TextMesh>();
         textMesh.text = password;
-        textMesh.fontSize = 15;
+        textMesh.fontSize = 30; // Larger font size for better readability
         textMesh.color = Color.yellow;
         textMesh.alignment = TextAlignment.Center;
         textMesh.anchor = TextAnchor.MiddleCenter;
 
-        // Ensure camera is assigned
-        if (camera == null)
-        {
-            Debug.LogError("Camera is not assigned.");
-            yield break;
-        }
+        // Make sure the text is always visible
+        textMesh.characterSize = 0.1f; // Adjust text scale
+        textMesh.fontStyle = FontStyle.Bold; // Bold text for better clarity
+        textMesh.richText = true; // Ensure rich text support
 
-        // Orient text towards the camera
+        // Add an Outline for better visibility
+        MeshRenderer textRenderer = text3D.GetComponent<MeshRenderer>();
+        textRenderer.material.shader = Shader.Find("Legacy Shaders/Particles/Alpha Blended"); // Ensures it's always visible
+
+        // Make sure the text is always facing the player
         text3D.transform.LookAt(camera.transform);
         text3D.transform.Rotate(0, 180, 0);
 
         crate.SetActive(false);
     }
+
 
     private void StopShake()
     {
@@ -122,7 +135,8 @@ public class GazeController : MonoBehaviour
             text3D = null;
         }
 
-        // Reactivate the crate
+        // Reset crate position
+        crate.transform.position = originalCratePosition;
         crate.SetActive(true);
     }
 }
