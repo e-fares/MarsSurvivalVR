@@ -39,6 +39,7 @@ public class ActivateAlarm : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        TurnOffAllLights();
         roomSpotlights = new List<GameObject>();
         for (int i = 0; i < parentSpotLights.childCount; i++)
         {
