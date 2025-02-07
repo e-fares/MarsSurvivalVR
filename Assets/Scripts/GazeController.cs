@@ -43,7 +43,7 @@ public class GazeController : MonoBehaviour
         float distance = Vector3.Distance(camera.transform.position, crate.transform.position);
 
         // If looking at crate within range, start shaking
-        if (angle < maxGazeAngle && distance <= maxDistance)
+        if ( distance <= maxDistance)
         {
             if (!isShaking && text3D == null)
             {
