@@ -8,6 +8,8 @@ using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviour
 {
+    // Référence au digicode
+    public NavKeypad.Keypad keypad;
     // Références aux boutons de sélection de difficulté
     public EventTrigger easyButton;
     public EventTrigger mediumButton;
@@ -56,17 +58,29 @@ public class GameManager : MonoBehaviour
 
     void SelectDifficulty(float time, EventTrigger selectedButton)
     {
-        // Mise à jour du temps de jeu
         timeRemaining = time;
-        UpdateTimeText(); // Ensure UI updates immediately
+        UpdateTimeText();
 
-        // Optionally highlight the selected button (not required but can be useful)
-        Debug.Log($"Difficulty selected: {timeRemaining} seconds");
+        // Set difficulty settings for the digicode
+        if (keypad != null)
+        {
+            if (selectedButton == easyButton)
+            {
+                keypad.SetDifficulty(4, 5); // 4-digit code, 5 lives
+            }
+            else if (selectedButton == mediumButton)
+            {
+                keypad.SetDifficulty(6, 3); // 6-digit code, 3 lives
+            }
+            else if (selectedButton == hardButton)
+            {
+                keypad.SetDifficulty(8, 2); // 8-digit code, 2 lives
+            }
+        }
 
     }
 
-
-    void StartGame()
+        void StartGame()
     {
         if (timeRemaining > 0 && !timerStarted)
         {

@@ -1,8 +1,10 @@
-using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace NavKeypad
 {
@@ -11,11 +13,28 @@ namespace NavKeypad
         [Header("Events")]
         [SerializeField] private UnityEvent onAccessGranted;
         [SerializeField] private UnityEvent onAccessDenied;
-        [Header("Combination Code (9 Numbers Max)")]
-        [SerializeField] private int keypadCombo = 12345;
 
+        [Header("Combination Code")]
+        private string keypadCombo;
         public UnityEvent OnAccessGranted => onAccessGranted;
         public UnityEvent OnAccessDenied => onAccessDenied;
+
+        [Header("Difficulty Settings")]
+        public int codeLength = 4;
+        public int totalLives = 5;
+        public TMP_Text livesText;
+
+        [Header("Secret Code Display")]
+        public GameObject hiddenPlane;
+        public TMP_Text planeText;
+
+        [Header("Raw Image Display")]
+        public GameObject rawImagePanel; // Assign the panel in Inspector
+        public GameObject rawImagePrefab; // Assign a RawImage prefab in Inspector
+        private List<GameObject> displayedRawImages = new List<GameObject>();
+
+        [Header("Instruction Panel")]
+        public TMP_Text instructionText;
 
         [Header("Settings")]
         [SerializeField] private string accessGrantedText = "Granted";
@@ -26,9 +45,9 @@ namespace NavKeypad
         [Range(0, 5)]
         [SerializeField] private float screenIntensity = 2.5f;
         [Header("Colors")]
-        [SerializeField] private Color screenNormalColor = new Color(0.98f, 0.50f, 0.032f, 1f); //orangy
-        [SerializeField] private Color screenDeniedColor = new Color(1f, 0f, 0f, 1f); //red
-        [SerializeField] private Color screenGrantedColor = new Color(0f, 0.62f, 0.07f); //greenish
+        [SerializeField] private Color screenNormalColor = new Color(0.98f, 0.50f, 0.032f, 1f);
+        [SerializeField] private Color screenDeniedColor = new Color(1f, 0f, 0f, 1f);
+        [SerializeField] private Color screenGrantedColor = new Color(0f, 0.62f, 0.07f);
         [Header("SoundFx")]
         [SerializeField] private AudioClip buttonClickedSfx;
         [SerializeField] private AudioClip accessDeniedSfx;
@@ -38,10 +57,10 @@ namespace NavKeypad
         [SerializeField] private TMP_Text keypadDisplayText;
         [SerializeField] private AudioSource audioSource;
 
-
         private string currentInput;
         private bool displayingResult = false;
         private bool accessWasGranted = false;
+        private List<Color> generatedColors = new List<Color>();
 
         private void Awake()
         {
@@ -49,46 +68,159 @@ namespace NavKeypad
             panelMesh.material.SetVector("_EmissionColor", screenNormalColor * screenIntensity);
         }
 
+        private void Start()
+        {
+            GenerateCode();
+            UpdateLivesUI();
+            UpdateInstructionText();
+        }
 
-        //Gets value from pressedbutton
+        public void SetDifficulty(int length, int lives)
+        {
+            codeLength = length;
+            totalLives = lives;
+            GenerateCode();
+            UpdateLivesUI();
+        }
+
+        private void GenerateCode()
+        {
+            keypadCombo = "";
+            generatedColors.Clear();
+
+            // Define consistent colors for digits (0-9)
+            Dictionary<int, Color> digitToColor = new Dictionary<int, Color>()
+    {
+        { 0, Color.red },
+        { 1, Color.blue },
+        { 2, Color.green },
+        { 3, Color.yellow },
+        { 4, Color.cyan },
+        { 5, Color.magenta },
+        { 6, Color.black },
+        { 7, Color.white },
+        { 8, Color.gray },
+        { 9, new Color(1f, 0.5f, 0f) } // Orange
+    };
+
+            for (int i = 0; i < codeLength; i++)
+            {
+                int randomDigit = Random.Range(0, 10);
+                keypadCombo += randomDigit.ToString();
+                generatedColors.Add(digitToColor[randomDigit]); // Assign the correct color to the digit
+            }
+
+            Debug.Log("New Digicode: " + keypadCombo);
+
+            // Ensure the plane displays the correct code
+            if (planeText != null)
+                planeText.text = "Code: " + keypadCombo;
+
+
+            DisplayRawImagesForCode(); // Now colors will match the keypadCombo
+        }
+
+        private void DisplayRawImagesForCode()
+        {
+            // Clear previous images
+            foreach (var img in displayedRawImages)
+            {
+                Destroy(img);
+            }
+            displayedRawImages.Clear();
+
+            if (rawImagePanel != null)
+            {
+                rawImagePanel.SetActive(true); // Ensure panel is visible
+
+                RectTransform panelRect = rawImagePanel.GetComponent<RectTransform>();
+                float panelWidth = panelRect.rect.width;
+                float spacing = 10f; // Space between images
+
+                // Calculate size of each RawImage dynamically
+                float imageSize = (panelWidth - (codeLength - 1) * spacing) / codeLength;
+
+                for (int i = 0; i < codeLength; i++)
+                {
+                    GameObject newRawImage = Instantiate(rawImagePrefab, rawImagePanel.transform);
+                    RawImage imageComponent = newRawImage.GetComponent<RawImage>();
+                    RectTransform imageRect = newRawImage.GetComponent<RectTransform>();
+
+                    if (imageComponent != null)
+                    {
+                        imageComponent.color = generatedColors[i]; // Now the colors will match the keypad digits
+                    }
+
+                    if (imageRect != null)
+                    {
+                        imageRect.sizeDelta = new Vector2(imageSize, imageSize);
+                        imageRect.anchorMin = new Vector2(0, 0.5f);
+                        imageRect.anchorMax = new Vector2(0, 0.5f);
+                        imageRect.pivot = new Vector2(0, 0.5f);
+                        imageRect.anchoredPosition = new Vector2(i * (imageSize + spacing), 0);
+                    }
+
+                    displayedRawImages.Add(newRawImage);
+                }
+
+            }
+        }
+
+
+
+        public void RotatePanelToRevealImages()
+        {
+            if (rawImagePanel != null)
+            {
+                rawImagePanel.SetActive(!rawImagePanel.activeSelf); // Toggle visibility
+            }
+        }
+
         public void AddInput(string input)
         {
             audioSource.PlayOneShot(buttonClickedSfx);
             if (displayingResult || accessWasGranted) return;
+
             switch (input)
             {
                 case "enter":
                     CheckCombo();
                     break;
                 default:
-                    if (currentInput != null && currentInput.Length == 9) // 9 max passcode size 
-                    {
+                    if (currentInput.Length >= codeLength)
                         return;
-                    }
+
                     currentInput += input;
                     keypadDisplayText.text = currentInput;
                     break;
             }
-
         }
+
         public void CheckCombo()
         {
-            if (int.TryParse(currentInput, out var currentKombo))
+            if (currentInput == keypadCombo)
             {
-                bool granted = currentKombo == keypadCombo;
                 if (!displayingResult)
                 {
-                    StartCoroutine(DisplayResultRoutine(granted));
+                    StartCoroutine(DisplayResultRoutine(true));
                 }
             }
             else
             {
-                Debug.LogWarning("Couldn't process input for some reason..");
+                totalLives--;
+                UpdateLivesUI();
+                if (totalLives <= 0)
+                {
+                    Debug.Log("Out of Lives! Game Over.");
+                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                }
+                else
+                {
+                    StartCoroutine(DisplayResultRoutine(false));
+                }
             }
-
         }
 
-        //mainly for animations 
         private IEnumerator DisplayResultRoutine(bool granted)
         {
             displayingResult = true;
@@ -98,10 +230,11 @@ namespace NavKeypad
 
             yield return new WaitForSeconds(displayResultTime);
             displayingResult = false;
-            if (granted) yield break;
-            ClearInput();
-            panelMesh.material.SetVector("_EmissionColor", screenNormalColor * screenIntensity);
-
+            if (!granted)
+            {
+                ClearInput();
+                panelMesh.material.SetVector("_EmissionColor", screenNormalColor * screenIntensity);
+            }
         }
 
         private void AccessDenied()
@@ -127,5 +260,35 @@ namespace NavKeypad
             audioSource.PlayOneShot(accessGrantedSfx);
         }
 
+        private void UpdateLivesUI()
+        {
+            if (livesText != null)
+            {
+                livesText.text = "Lives Left: " + totalLives;
+            }
+        }
+
+        private void UpdateInstructionText()
+        {
+            if (instructionText != null)
+            {
+                instructionText.text = "Accès Sécurisé – Instructions\n" +
+                                       "Un coffre de sécurité est dissimulé à proximité.\n" +
+                                       "Repérez les particules lumineuses qui l’entourent.\n" +
+                                       "Approchez-vous et observez-le attentivement.\n" +
+                                       "Jouez au jeu pour retrouvez les chiffres qui correspondent au code couleur au dessus du keypad.\n\n" +
+                                       "Restez vigilant et mémorisez-le.\n" +
+                                       "Une fois saisi sur le terminal, l’accès sera débloqué.";
+            }
+        }
+
+        private Color GetDistinctColor(int index)
+        {
+            Color[] colors = {
+                Color.red, Color.blue, Color.green, Color.yellow, Color.cyan,
+                Color.magenta, Color.black, Color.white, Color.gray, new Color(1f, 0.5f, 0f) // Orange
+            };
+            return colors[index % colors.Length];
+        }
     }
 }
