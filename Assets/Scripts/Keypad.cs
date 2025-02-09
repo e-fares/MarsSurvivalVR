@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
@@ -10,6 +11,13 @@ namespace NavKeypad
 {
     public class Keypad : MonoBehaviour
     {
+        public Transform parentSpotLights;
+        private List<GameObject> roomSpotlights;
+        private GameObject[] roomLights;
+        public ActivateAlarm playerScript;
+        public TMPro.TextMeshProUGUI fixElectricity;
+
+
         [Header("Events")]
         [SerializeField] private UnityEvent onAccessGranted;
         [SerializeField] private UnityEvent onAccessDenied;
@@ -258,6 +266,51 @@ namespace NavKeypad
             onAccessGranted?.Invoke();
             panelMesh.material.SetVector("_EmissionColor", screenGrantedColor * screenIntensity);
             audioSource.PlayOneShot(accessGrantedSfx);
+            Debug.Log("Access Granted!");
+            Debug.Log("Electricity is now fixed!");
+
+            playerScript.enabled = false;
+            roomSpotlights = new List<GameObject>();
+            for (int i = 0; i < parentSpotLights.childCount; i++)
+            {
+                Transform child = parentSpotLights.GetChild(i);
+                roomSpotlights.Add(child.gameObject);
+            }
+
+            // Initialiser le tableau de la même taille que roomLights
+            roomLights = new GameObject[roomSpotlights.Count];
+
+            // Récupérer tous les enfants (un par parent)
+            for (int i = 0; i < roomSpotlights.Count; i++)
+            {
+                if (roomSpotlights[i].transform.childCount > 0) // Vérifie si un enfant existe
+                {
+                    roomLights[i] = roomSpotlights[i].transform.GetChild(0).gameObject;
+                }
+            }
+
+            foreach (GameObject light in roomLights)
+            {
+                light.GetComponent<Light>().color = Color.white;
+                light.GetComponent<Light>().intensity = 2;
+            }
+
+            foreach (GameObject spotLight in roomSpotlights)
+            {
+                // Référence à l'objet
+                Renderer renderer = spotLight.GetComponent<Renderer>();
+
+                // Assurez-vous que le matériau utilise un shader supportant l'émission
+                Material material = renderer.materials[1];
+
+                // Assurez-vous que l'émission est activée
+                material.EnableKeyword("_EMISSION");
+
+                // Modifiez la couleur d'émission avec une interpolation
+                material.SetColor("_EmissionColor", Color.white);
+            }
+            fixElectricity.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : fixElectricity.color;
+
         }
 
         private void UpdateLivesUI()
@@ -276,7 +329,7 @@ namespace NavKeypad
                                        "Un coffre de sécurité est dissimulé à proximité.\n" +
                                        "Repérez les particules lumineuses qui l’entourent.\n" +
                                        "Approchez-vous et observez-le attentivement.\n" +
-                                       "Jouez au jeu pour retrouvez les chiffres qui correspondent au code couleur au dessus du keypad.\n\n" +
+                                       "Retrouvez les chiffres qui correspondent au code couleur au dessus du keypad.\n\n" +
                                        "Restez vigilant et mémorisez-le.\n" +
                                        "Une fois saisi sur le terminal, l’accès sera débloqué.";
             }

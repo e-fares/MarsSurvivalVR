@@ -56,14 +56,14 @@ public class ObjectInteraction : MonoBehaviour
         if (Physics.Raycast(ray, out hit, interactionRange, interactableLayer))
         {
             GameObject hitObject = hit.collider.gameObject;
-            Debug.Log("Objet touché (Down) : " + hitObject.name);
+            //Debug.Log("Objet touché (Down) : " + hitObject.name);
             // Vérifie si l'objet touché a un EventTrigger
             EventTrigger trigger = hitObject.GetComponent<EventTrigger>();
             if (trigger != null)
             {
                 // Simule un appui sur l'objet
                 ExecuteEvents.Execute(hitObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerDownHandler);
-                Debug.Log("Interaction (Down) avec " + hitObject.name);
+                //Debug.Log("Interaction (Down) avec " + hitObject.name);
             }
         }
     }
@@ -77,14 +77,14 @@ public class ObjectInteraction : MonoBehaviour
         if (Physics.Raycast(ray, out hit, interactionRange, interactableLayer))
         {
             GameObject hitObject = hit.collider.gameObject;
-            Debug.Log("Objet touché (Up) : " + hitObject.name);
+            //Debug.Log("Objet touché (Up) : " + hitObject.name);
             // Vérifie si l'objet touché a un EventTrigger
             EventTrigger trigger = hitObject.GetComponent<EventTrigger>();
             if (trigger != null)
             {
                 // Simule un relâchement sur l'objet
                 ExecuteEvents.Execute(hitObject, new PointerEventData(EventSystem.current), ExecuteEvents.pointerUpHandler);
-                Debug.Log("Interaction (Up) avec " + hitObject.name);
+                //Debug.Log("Interaction (Up) avec " + hitObject.name);
             }
         }
     }

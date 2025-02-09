@@ -13,6 +13,9 @@ public class TurnWheelGradual : MonoBehaviour
     private bool isTurning = false;           // Vérifie si on maintient l’interaction
     private float currentRotation = 0f;       // Rotation actuelle du volant
 
+    public TMPro.TextMeshProUGUI fixGazLeak;
+    public static int playerScore = 0; // Variable globale statique
+
     void Start()
     {
         currentRotation = transform.localEulerAngles.x;
@@ -30,14 +33,12 @@ public class TurnWheelGradual : MonoBehaviour
     public void OnPointerDown()
     {
         isTurning = true;
-        Debug.Log("OnPointerDown");
     }
 
     // Quand on relâche le volant (OnPointerUp), arrête la rotation
     public void OnPointerUp()
     {
         isTurning = false;
-        Debug.Log("OnPointerUp");
     }
 
     private void RotateWheel()
@@ -66,6 +67,12 @@ public class TurnWheelGradual : MonoBehaviour
             if (newEmissionRate <= 0.1f)
             {
                 gasParticleSystem.Stop();
+                playerScore += 1;
+                fixGazLeak.text = $"2. Fix gaz leak ({playerScore/2}/2)";
+                if (playerScore/2 == 2)
+                {
+                    fixGazLeak.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : fixGazLeak.color;
+                }
             }
             else if (!gasParticleSystem.isPlaying)
             {
