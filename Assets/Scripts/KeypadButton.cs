@@ -20,7 +20,6 @@ namespace NavKeypad
             if (!moving)
             {
                 keypad.AddInput(value);
-                Debug.Log(value);
                 StartCoroutine(MoveSmooth());
             }
         }
