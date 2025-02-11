@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
@@ -17,7 +18,7 @@ namespace NavKeypad
         public ActivateAlarm playerScript;
         public TMPro.TextMeshProUGUI fixElectricity;
 
-
+        public GameObject prefButton;
         [Header("Events")]
         [SerializeField] private UnityEvent onAccessGranted;
         [SerializeField] private UnityEvent onAccessDenied;
@@ -28,8 +29,8 @@ namespace NavKeypad
         public UnityEvent OnAccessDenied => onAccessDenied;
 
         [Header("Difficulty Settings")]
-        public int codeLength = 4;
-        public int totalLives = 5;
+        public int codeLength;
+        public int totalLives;
         public TMP_Text livesText;
 
         [Header("Secret Code Display")]
@@ -64,89 +65,108 @@ namespace NavKeypad
         [SerializeField] private Renderer panelMesh;
         [SerializeField] private TMP_Text keypadDisplayText;
         [SerializeField] private AudioSource audioSource;
-
+        private Dictionary<int, Color> numberToColor;
         private string currentInput;
         private bool displayingResult = false;
         private bool accessWasGranted = false;
         private List<Color> generatedColors = new List<Color>();
-
         private void Awake()
         {
+            InitializeColorMapping();
+
             ClearInput();
             panelMesh.material.SetVector("_EmissionColor", screenNormalColor * screenIntensity);
         }
 
         private void Start()
         {
-            GenerateCode();
-            UpdateLivesUI();
+            BoxCollider[] colliders = prefButton.GetComponentsInChildren<BoxCollider>();
+
+            foreach (BoxCollider col in colliders)
+            {
+                col.enabled = true;
+            }
             UpdateInstructionText();
         }
 
         public void SetDifficulty(int length, int lives)
         {
+
             codeLength = length;
             totalLives = lives;
             GenerateCode();
             UpdateLivesUI();
         }
+        public void reduceLife()
+        {
+            totalLives--;
+            if (totalLives == 0)
+            {
+                BoxCollider[] colliders = prefButton.GetComponentsInChildren<BoxCollider>();
 
+                foreach (BoxCollider col in colliders)
+                {
+                    col.enabled = false;
+                }
+
+            }
+            UpdateLivesUI();
+
+        }
         private void GenerateCode()
         {
             keypadCombo = "";
-            generatedColors.Clear();
-
-            // Define consistent colors for digits (0-9)
-            Dictionary<int, Color> digitToColor = new Dictionary<int, Color>()
-    {
-        { 0, Color.red },
-        { 1, Color.blue },
-        { 2, Color.green },
-        { 3, Color.yellow },
-        { 4, Color.cyan },
-        { 5, Color.magenta },
-        { 6, Color.black },
-        { 7, Color.white },
-        { 8, Color.gray },
-        { 9, new Color(1f, 0.5f, 0f) } // Orange
-    };
 
             for (int i = 0; i < codeLength; i++)
             {
                 int randomDigit = Random.Range(0, 10);
                 keypadCombo += randomDigit.ToString();
-                generatedColors.Add(digitToColor[randomDigit]); // Assign the correct color to the digit
             }
 
-            Debug.Log("New Digicode: " + keypadCombo);
+            Debug.Log("Generated Code: " + keypadCombo);
 
-            // Ensure the plane displays the correct code
             if (planeText != null)
                 planeText.text = "Code: " + keypadCombo;
 
+            DisplayRawImagesForCode();
+        }
 
-            DisplayRawImagesForCode(); // Now colors will match the keypadCombo
+        private void InitializeColorMapping()
+        {
+            numberToColor = new Dictionary<int, Color>
+        {
+            { 0, Color.red },
+            { 1, Color.blue },
+            { 2, Color.green },
+            { 3, Color.yellow },
+            { 4, Color.cyan },
+            { 5, Color.magenta },
+            { 6, Color.black },
+            { 7, new Color(65/255.0f,42/255.0f,42/255.0f)},
+            { 8, Color.gray },
+            { 9, new Color(1f, 0.5f, 0f) } // Orange
+        };
         }
 
         private void DisplayRawImagesForCode()
         {
-            // Clear previous images
             foreach (var img in displayedRawImages)
-            {
                 Destroy(img);
-            }
             displayedRawImages.Clear();
 
             if (rawImagePanel != null)
             {
-                rawImagePanel.SetActive(true); // Ensure panel is visible
-
+                rawImagePanel.SetActive(true);
                 RectTransform panelRect = rawImagePanel.GetComponent<RectTransform>();
                 float panelWidth = panelRect.rect.width;
-                float spacing = 10f; // Space between images
-
-                // Calculate size of each RawImage dynamically
+                float spacing = 10f;
                 float imageSize = (panelWidth - (codeLength - 1) * spacing) / codeLength;
+
+                List<int> digitOrder = new List<int>();
+                foreach (char digit in keypadCombo)
+                {
+                    digitOrder.Add(int.Parse(digit.ToString()));
+                }
 
                 for (int i = 0; i < codeLength; i++)
                 {
@@ -154,25 +174,33 @@ namespace NavKeypad
                     RawImage imageComponent = newRawImage.GetComponent<RawImage>();
                     RectTransform imageRect = newRawImage.GetComponent<RectTransform>();
 
+                    int digit = digitOrder[i];
+
                     if (imageComponent != null)
-                    {
-                        imageComponent.color = generatedColors[i]; // Now the colors will match the keypad digits
-                    }
+                        imageComponent.color = numberToColor[digit];
 
                     if (imageRect != null)
                     {
-                        imageRect.sizeDelta = new Vector2(imageSize, imageSize);
-                        imageRect.anchorMin = new Vector2(0, 0.5f);
-                        imageRect.anchorMax = new Vector2(0, 0.5f);
-                        imageRect.pivot = new Vector2(0, 0.5f);
-                        imageRect.anchoredPosition = new Vector2(i * (imageSize + spacing), 0);
+                        PositionRawImage(imageRect, i, imageSize, spacing);
                     }
 
                     displayedRawImages.Add(newRawImage);
                 }
-
             }
         }
+
+        private void PositionRawImage(RectTransform imageRect, int index, float imageSize, float spacing)
+        {
+            // Ensure correct anchoring and pivot settings
+            imageRect.anchorMin = new Vector2(0, 0.5f);
+            imageRect.anchorMax = new Vector2(0, 0.5f);
+            imageRect.pivot = new Vector2(0, 0.5f);
+
+            // Position images correctly with spacing
+            imageRect.sizeDelta = new Vector2(imageSize, imageSize);
+            imageRect.anchoredPosition = new Vector2(index * (imageSize + spacing), 0);
+        }
+
 
 
 
@@ -335,13 +363,6 @@ namespace NavKeypad
             }
         }
 
-        private Color GetDistinctColor(int index)
-        {
-            Color[] colors = {
-                Color.red, Color.blue, Color.green, Color.yellow, Color.cyan,
-                Color.magenta, Color.black, Color.white, Color.gray, new Color(1f, 0.5f, 0f) // Orange
-            };
-            return colors[index % colors.Length];
-        }
+
     }
 }

@@ -60,21 +60,23 @@ public class GameManager : MonoBehaviour
     {
         timeRemaining = time;
         UpdateTimeText();
-
+        Debug.Log("DIFFICULTY");
         // Set difficulty settings for the digicode
         if (keypad != null)
         {
             if (selectedButton == easyButton)
             {
-                keypad.SetDifficulty(4, 5); // 4-digit code, 5 lives
+                keypad.SetDifficulty(4, 6); // 4-digit code, 5 lives
+                Debug.Log("easy");
+
             }
             else if (selectedButton == mediumButton)
             {
-                keypad.SetDifficulty(6, 3); // 6-digit code, 3 lives
+                keypad.SetDifficulty(4, 5); // 6-digit code, 3 lives
             }
             else if (selectedButton == hardButton)
             {
-                keypad.SetDifficulty(8, 2); // 8-digit code, 2 lives
+                keypad.SetDifficulty(4, 4); // 8-digit code, 2 lives
             }
         }
 

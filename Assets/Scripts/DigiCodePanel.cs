@@ -15,17 +15,24 @@ public class DigiCodePanel : MonoBehaviour
     private List<Color> distinctColors = new List<Color>
     {
         Color.red, Color.blue, Color.green, Color.yellow, Color.cyan,
-        Color.magenta, Color.black, Color.gray, Color.white, new Color(1.0f, 0.5f, 0f) // Orange
+        Color.magenta, Color.black, new Color(65/255.0f,42/255.0f,42/255.0f) ,Color.gray, new Color(1.0f, 0.5f, 0f) // Orange
     };
-    public int totalLives = 3; // Set from Inspector
+    private NavKeypad.Keypad keypad;
     public TextMeshProUGUI livesText; // Assign in Inspector
     public TMP_FontAsset textFont; // Assign a custom font in Inspector
 
     void Start()
     {
-        CreateInstructionText();
+       
+            keypad = FindObjectOfType<NavKeypad.Keypad>(); 
+
+            if (keypad == null)
+            {
+                Debug.LogError("Keypad not found in scene!");
+            }
+
+            CreateInstructionText();
         GenerateRawImages();
-        UpdateLivesUI();
     }
 
     void CreateInstructionText()
@@ -52,14 +59,24 @@ public class DigiCodePanel : MonoBehaviour
             (panelHeight - (rows + 1) * spacing) / rows
         );
 
-        availableNumbers.Shuffle();
-        distinctColors.Shuffle();
+        // Create a list of positions
+        List<Vector2> positions = new List<Vector2>();
 
         for (int i = 0; i < 10; i++)
         {
             int row = i / columns;
             int col = i % columns;
+            Vector2 position = new Vector2(
+                spacing + col * (squareSize + spacing),
+                -spacing - row * (squareSize + spacing)
+            );
+            positions.Add(position);
+        }
 
+        positions.Shuffle(); 
+
+        for (int i = 0; i < 10; i++)
+        {
             GameObject rawImageGO = Instantiate(rawImagePrefab, transform);
             RawImage rawImage = rawImageGO.GetComponent<RawImage>();
 
@@ -70,12 +87,8 @@ public class DigiCodePanel : MonoBehaviour
             rawImageRect.pivot = new Vector2(0, 1); // Pivot at top-left
             rawImageRect.sizeDelta = new Vector2(squareSize, squareSize);
 
-            Vector2 position = new Vector2(
-                spacing + col * (squareSize + spacing),
-                -spacing - row * (squareSize + spacing)
-            );
-
-            rawImageRect.anchoredPosition = position;
+            // Assign shuffled position
+            rawImageRect.anchoredPosition = positions[i];
 
             int number = availableNumbers[i];
             rawImage.color = distinctColors[i];
@@ -98,12 +111,11 @@ public class DigiCodePanel : MonoBehaviour
         }
     }
 
+
     void OnImageClick(GameObject imageGO, int number)
     {
         // Reduce lives if it's a wrong choice
-        totalLives--;
-        UpdateLivesUI();
-
+        keypad.reduceLife();
         // Create or find the TextMeshProUGUI component
         TextMeshProUGUI buttonText = imageGO.GetComponentInChildren<TextMeshProUGUI>();
 
@@ -130,29 +142,11 @@ public class DigiCodePanel : MonoBehaviour
 
         // Animate Flip and Disappear
         StartCoroutine(FlipAndDisappear(imageGO));
+       
     }
 
     // UI Update for Lives
-    void UpdateLivesUI()
-    {
-        if (livesText != null)
-        {
-            livesText.text = "Lives Left: " + totalLives;
-        }
 
-        // If out of lives, disable interaction
-        if (totalLives <= 0)
-        {
-            foreach (var rawImage in rawImages.Values)
-            {
-                rawImage.GetComponent<XRSimpleInteractable>().enabled = false;
-            }
-            foreach (var rawImage in rawImages.Values)
-            {
-                rawImage.GetComponent<BoxCollider>().enabled = false;
-            }
-        }
-    }
 
     // Coroutine for Flip & Disappear
     IEnumerator FlipAndDisappear(GameObject imageGO)
