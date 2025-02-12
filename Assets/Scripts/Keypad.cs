@@ -12,6 +12,7 @@ namespace NavKeypad
 {
     public class Keypad : MonoBehaviour
     {
+        public GameManager gameManager;
         public Transform parentSpotLights;
         private List<GameObject> roomSpotlights;
         private GameObject[] roomLights;
@@ -337,6 +338,7 @@ namespace NavKeypad
                 material.SetColor("_EmissionColor", Color.white);
             }
             fixElectricity.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : fixElectricity.color;
+            gameManager.Victory();
         }
 
         private void UpdateLivesUI()

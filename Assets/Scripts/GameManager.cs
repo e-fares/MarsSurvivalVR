@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
+using UnityEngine.SocialPlatforms.Impl;
+using System.Data;
 //using System.Diagnostics;
 
 public class GameManager : MonoBehaviour
@@ -31,13 +33,17 @@ public class GameManager : MonoBehaviour
     // Référence à l'interface utilisateur
     public GameObject UILevelDifficulty;
     private bool alarmPlayed;
-    public GameObject canvas;
+    public GameObject canvasLoss;
+    public GameObject canvasVictory;
+    public int MissionMax = 3;
+    public int CurrentMissionCount=0;
+    
     void Start()
     {
         alarmPlayed = false;
         timeRemaining = 99999;
         // Ajout des événements aux boutons de difficulté
-        AddEventTrigger(easyButton, () => SelectDifficulty(15 * 60, easyButton));
+        AddEventTrigger(easyButton, () => SelectDifficulty(2 * 60, easyButton));
         AddEventTrigger(mediumButton, () => SelectDifficulty(10 * 60, mediumButton));
         AddEventTrigger(hardButton, () => SelectDifficulty(7 * 60, hardButton));
 
@@ -56,7 +62,7 @@ public class GameManager : MonoBehaviour
         if (timerStarted && timeRemaining <= 0)
         {
             Debug.Log("Temps écoulé ! La base a explosé !");
-            canvas.SetActive(true);
+            canvasLoss.SetActive(true);
             alarm.StopAlarm();
         }
         if(timeRemaining<30 && !alarmPlayed)
@@ -69,6 +75,7 @@ public class GameManager : MonoBehaviour
         {
             quitButton.QuitApplication();
         }
+        
     }
 
     void SelectDifficulty(float time, EventTrigger selectedButton)
@@ -93,7 +100,15 @@ public class GameManager : MonoBehaviour
         }
 
     }
-
+    public void Victory()
+    {
+        CurrentMissionCount += 1;
+        if (CurrentMissionCount == MissionMax)
+        {
+            timeRemaining = 0;
+            canvasVictory.SetActive(true);
+        }
+    }
         void StartGame()
     {
         if (timeRemaining > 0 && !timerStarted)

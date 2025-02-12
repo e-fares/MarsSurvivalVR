@@ -11,7 +11,7 @@ public class TurnWheelGradual : MonoBehaviour
 
     private float currentRotation = 0f;       // Current wheel rotation
     private int clickCount = 0;               // Tracks button clicks (max 3)
-
+    public GameManager gameManager;
     public TMPro.TextMeshProUGUI fixGazLeak;
     public static int playerScore = 0;
 
@@ -48,10 +48,11 @@ public class TurnWheelGradual : MonoBehaviour
             {
                 gasParticleSystem.Stop();
                 playerScore += 1;
-                fixGazLeak.text = $"2. Fix gas leak ({playerScore / 2}/2)";
-                if (playerScore / 2 == 2)
+                fixGazLeak.text = $"2. Fix gas leak ({playerScore}/2)";
+                if (playerScore == 2)
                 {
                     fixGazLeak.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : fixGazLeak.color;
+                    gameManager.Victory();
                 }
             }
             else if (!gasParticleSystem.isPlaying)
