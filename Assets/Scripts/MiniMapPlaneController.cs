@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MinimapPlaneController : MonoBehaviour
+public class MiniMapPlaneController : MonoBehaviour
 {
     public Camera mainCamera;
 
