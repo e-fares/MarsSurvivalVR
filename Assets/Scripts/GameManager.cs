@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     public EventTrigger mediumButton;
     public EventTrigger hardButton;
     public EventTrigger startButton;
-
+    public GameObject isColorBlind;
     // Référence au texte affichant le temps restant
     public TMP_Text timeText;
     public TMP_Text timeTextMinimap;
@@ -87,15 +87,15 @@ public class GameManager : MonoBehaviour
         {
             if (selectedButton == easyButton)
             {
-                keypad.SetDifficulty(4, 6); // 4-digit code, 5 lives
+                keypad.SetDifficulty(4, 6, isColorBlind.activeInHierarchy); // 4-digit code, 5 lives
             }
             else if (selectedButton == mediumButton)
             {
-                keypad.SetDifficulty(4, 5); // 6-digit code, 3 lives
+                keypad.SetDifficulty(4, 5, isColorBlind.activeInHierarchy); // 6-digit code, 3 lives
             }
             else if (selectedButton == hardButton)
             {
-                keypad.SetDifficulty(4, 4); // 8-digit code, 2 lives
+                keypad.SetDifficulty(4, 4, isColorBlind.activeInHierarchy); // 8-digit code, 2 lives
             }
         }
 

@@ -19,6 +19,7 @@ namespace NavKeypad
         public ActivateAlarm playerScript;
         public TMPro.TextMeshProUGUI fixElectricity;
         public GameObject prefButton;
+
         [Header("Events")]
         [SerializeField] private UnityEvent onAccessGranted;
         [SerializeField] private UnityEvent onAccessDenied;
@@ -31,6 +32,7 @@ namespace NavKeypad
         [Header("Difficulty Settings")]
         public int codeLength;
         public int totalLives;
+        public bool isColorBlind;
         public TMP_Text livesText;
 
         [Header("Secret Code Display")]
@@ -70,6 +72,64 @@ namespace NavKeypad
         private bool displayingResult = false;
         private bool accessWasGranted = false;
         private List<Color> generatedColors = new List<Color>();
+
+        [Header("Logo Display")]
+        public List<Sprite> numberLogos; // Assign 10 logo Sprites (0-9) in the Inspector
+
+        private void DisplayLogosForCode()
+        {
+            foreach (var img in displayedRawImages)
+                Destroy(img);
+            displayedRawImages.Clear();
+
+            if (rawImagePanel != null)
+            {
+                rawImagePanel.SetActive(true);
+                RectTransform panelRect = rawImagePanel.GetComponent<RectTransform>();
+                float panelWidth = panelRect.rect.width;
+                float spacing = 10f;
+                float imageSize = (panelWidth - (codeLength - 1) * spacing) / codeLength;
+
+                List<int> digitOrder = new List<int>();
+                foreach (char digit in keypadCombo)
+                {
+                    digitOrder.Add(int.Parse(digit.ToString()));
+                }
+
+                for (int i = 0; i < codeLength; i++)
+                {
+                    GameObject newRawImage = Instantiate(rawImagePrefab, rawImagePanel.transform);
+                    RawImage imageComponent = newRawImage.GetComponent<RawImage>();
+                    RectTransform imageRect = newRawImage.GetComponent<RectTransform>();
+
+                    int digit = digitOrder[i];
+
+                    if (imageComponent != null && numberLogos.Count > digit)
+                    {
+                        imageComponent.texture = numberLogos[digit].texture; // Assign logo instead of color
+
+                        // Force Square Aspect Ratio
+                        imageComponent.rectTransform.sizeDelta = new Vector2(imageSize, imageSize);
+                        imageComponent.rectTransform.localScale = Vector3.one;
+                        imageComponent.rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+                        imageComponent.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                        imageComponent.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Not enough logos assigned in numberLogos list!");
+                    }
+
+                    if (imageRect != null)
+                    {
+                        PositionRawImage(imageRect, i, imageSize, spacing);
+                    }
+
+                    displayedRawImages.Add(newRawImage);
+                }
+            }
+        }
+
         private void Awake()
         {
             InitializeColorMapping();
@@ -89,11 +149,12 @@ namespace NavKeypad
             UpdateInstructionText();
         }
 
-        public void SetDifficulty(int length, int lives)
+        public void SetDifficulty(int length, int lives, bool colorBlind)
         {
 
             codeLength = length;
             totalLives = lives;
+            isColorBlind = colorBlind;
             GenerateCode();
             UpdateLivesUI();
         }
@@ -127,8 +188,10 @@ namespace NavKeypad
 
             if (planeText != null)
                 planeText.text = "Code: " + keypadCombo;
-
+            if(isColorBlind)
             DisplayRawImagesForCode();
+            else
+                DisplayLogosForCode();
         }
 
         private void InitializeColorMapping()

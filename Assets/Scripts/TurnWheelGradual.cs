@@ -14,6 +14,8 @@ public class TurnWheelGradual : MonoBehaviour
     public GameManager gameManager;
     public TMPro.TextMeshProUGUI fixGazLeak;
     public static int playerScore = 0;
+    public GameObject oldSign;
+    public GameObject newSign;
 
     void Start()
     {
@@ -49,6 +51,8 @@ public class TurnWheelGradual : MonoBehaviour
                 gasParticleSystem.Stop();
                 playerScore += 1;
                 fixGazLeak.text = $"2. Fix gas leak ({playerScore}/2)";
+                oldSign.SetActive(false);
+                newSign.SetActive(true);
                 if (playerScore == 2)
                 {
                     fixGazLeak.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : fixGazLeak.color;
