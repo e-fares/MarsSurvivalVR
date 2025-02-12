@@ -58,8 +58,8 @@ namespace NavKeypad
                 yield return null;
             }
             transform.localPosition = endPos;
-
             moving = false;
+
         }
     }
 }

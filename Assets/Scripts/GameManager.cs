@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
 
     // Référence au texte affichant le temps restant
     public TMP_Text timeText;
+    public TMP_Text timeTextMinimap;
 
     // Temps avant l'explosion de la base en secondes
     private float timeRemaining;
@@ -101,6 +102,7 @@ public class GameManager : MonoBehaviour
         int minutes = Mathf.FloorToInt(timeRemaining / 60);
         int seconds = Mathf.FloorToInt(timeRemaining % 60);
         timeText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
+        timeTextMinimap.text = string.Format("{0:00}:{1:00}", minutes, seconds);
     }
 
    

@@ -36,6 +36,7 @@ public class DoorController : MonoBehaviour
             {
                 isOpening = false;
                 timeElapsed = 0f;
+                gameObject.SetActive(false);
             }
         }
     }
@@ -49,5 +50,6 @@ public class DoorController : MonoBehaviour
             // Jouer le son d'ouverture de la porte
             audioSource.Play();
         }
+
     }
 }

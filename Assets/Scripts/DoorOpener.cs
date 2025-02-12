@@ -35,9 +35,9 @@ public class DoorOpener : MonoBehaviour
             Debug.LogError("AudioSource n'a pas été trouvé sur l'objet porte !");
         }
     }
-
-    void Update()
+    public void openDoor()
     {
+
         // Calcule la distance entre le joueur et la porte
         float distance = Vector3.Distance(player.position, transform.position);
 
@@ -111,5 +111,8 @@ public class DoorOpener : MonoBehaviour
             isClosing = false;  // Empêche la fermeture de la porte
             hasClosed = false;  // Réinitialise la fermeture pour pouvoir jouer le son la prochaine fois
         }
+    }
+    void Update()
+    {
     }
 }

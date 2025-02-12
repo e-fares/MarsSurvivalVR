@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class QuiteGameButton : MonoBehaviour
+public class QuitGameButton : MonoBehaviour
 {
     // Méthode pour quitter l'application
     public void QuitApplication()

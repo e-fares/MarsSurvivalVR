@@ -17,7 +17,6 @@ namespace NavKeypad
         private GameObject[] roomLights;
         public ActivateAlarm playerScript;
         public TMPro.TextMeshProUGUI fixElectricity;
-
         public GameObject prefButton;
         [Header("Events")]
         [SerializeField] private UnityEvent onAccessGranted;
@@ -338,7 +337,6 @@ namespace NavKeypad
                 material.SetColor("_EmissionColor", Color.white);
             }
             fixElectricity.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : fixElectricity.color;
-
         }
 
         private void UpdateLivesUI()
@@ -365,4 +363,6 @@ namespace NavKeypad
 
 
     }
+  
 }
+    
