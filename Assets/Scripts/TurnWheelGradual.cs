@@ -1,75 +1,55 @@
 using UnityEngine;
-using UnityEngine.EventSystems; // Nécessaire pour OnPointerDown / OnPointerUp
+using UnityEngine.UI; // For UI elements
 
 public class TurnWheelGradual : MonoBehaviour
 {
-    public ParticleSystem gasParticleSystem;  // Référence au gaz
-    public float rotationSpeed = 50f;         // Vitesse de rotation en degrés/seconde
-    public float maxRotation = 90f;           // Angle max du volant
-    public float minRotation = 0f;            // Angle min du volant
-    public float minEmissionRate = 0f;        // Débit min des particules
-    public float maxEmissionRate = 50f;       // Débit max des particules
+    public ParticleSystem gasParticleSystem;  // Reference to gas particle system
+    public float maxRotation = 90f;           // Maximum wheel rotation
+    public float minRotation = 0f;            // Minimum wheel rotation
+    public float minEmissionRate = 0f;        // Minimum particle emission rate
+    public float maxEmissionRate = 50f;       // Maximum particle emission rate
 
-    private bool isTurning = false;           // Vérifie si on maintient l’interaction
-    private float currentRotation = 0f;       // Rotation actuelle du volant
+    private float currentRotation = 0f;       // Current wheel rotation
+    private int clickCount = 0;               // Tracks button clicks (max 3)
 
     public TMPro.TextMeshProUGUI fixGazLeak;
-    public static int playerScore = 0; // Variable globale statique
+    public static int playerScore = 0;
 
     void Start()
     {
         currentRotation = transform.localEulerAngles.x;
+
     }
 
-    void Update()
+    public void OnButtonClick()
     {
-        if (isTurning)
+        if (clickCount < 3) // 3 clicks needed for full rotation
         {
-            RotateWheel(); // Continue la rotation tant que isTurning est vrai
-        }
-    }
-
-    // Quand on appuie sur le volant (OnPointerDown), commence la rotation
-    public void OnPointerDown()
-    {
-        isTurning = true;
-    }
-
-    // Quand on relâche le volant (OnPointerUp), arrête la rotation
-    public void OnPointerUp()
-    {
-        isTurning = false;
-    }
-
-    private void RotateWheel()
-    {
-        float rotationStep = rotationSpeed * Time.deltaTime;
-        float newRotation = Mathf.Clamp(currentRotation + rotationStep, minRotation, maxRotation);
-
-        if (newRotation != currentRotation)
-        {
-            currentRotation = newRotation;
+            clickCount++;
+            float rotationStep = (maxRotation - minRotation) / 3; // Divide into 3 steps
+            currentRotation = Mathf.Clamp(currentRotation + rotationStep, minRotation, maxRotation);
             transform.localEulerAngles = new Vector3(currentRotation, transform.localEulerAngles.y, transform.localEulerAngles.z);
             AdjustGasEmission();
         }
     }
 
-    // Ajuste l'intensité des particules en fonction de la rotation
+    // Adjusts the intensity of gas emission based on the number of clicks
     void AdjustGasEmission()
     {
         if (gasParticleSystem != null)
         {
             var emission = gasParticleSystem.emission;
-            float normalizedRotation = (currentRotation - minRotation) / (maxRotation - minRotation);
+            float normalizedRotation = (float)clickCount / 3; // Goes from 0 to 1 over three clicks
             float newEmissionRate = Mathf.Lerp(maxEmissionRate, minEmissionRate, normalizedRotation);
             emission.rateOverTime = newEmissionRate;
 
-            if (newEmissionRate <= 0.1f)
+            // Stop gas ONLY when rotation is fully completed
+            if (clickCount == 3)
             {
                 gasParticleSystem.Stop();
                 playerScore += 1;
-                fixGazLeak.text = $"2. Fix gaz leak ({playerScore/2}/2)";
-                if (playerScore/2 == 2)
+                fixGazLeak.text = $"2. Fix gas leak ({playerScore / 2}/2)";
+                if (playerScore / 2 == 2)
                 {
                     fixGazLeak.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : fixGazLeak.color;
                 }

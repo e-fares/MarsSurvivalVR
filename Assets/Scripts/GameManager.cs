@@ -22,16 +22,20 @@ public class GameManager : MonoBehaviour
 
     // Temps avant l'explosion de la base en secondes
     private float timeRemaining;
+    private float timeRemaining2;
     private bool timerStarted = false;
-
+    public QuitGameButton quitButton;
     // Référence à Door Controller
     public DoorController doorController;
-
+    public ActivateAlarm alarm;
     // Référence à l'interface utilisateur
     public GameObject UILevelDifficulty;
-
+    private bool alarmPlayed;
+    public GameObject canvas;
     void Start()
     {
+        alarmPlayed = false;
+        timeRemaining = 99999;
         // Ajout des événements aux boutons de difficulté
         AddEventTrigger(easyButton, () => SelectDifficulty(15 * 60, easyButton));
         AddEventTrigger(mediumButton, () => SelectDifficulty(10 * 60, mediumButton));
@@ -44,16 +48,26 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         // Si le timer a commencé et qu'il reste du temps, on décrémente le temps restant
-        if (timerStarted && timeRemaining > 0)
+        if (timerStarted && timeRemaining > -16)
         {
             timeRemaining -= Time.deltaTime;
             UpdateTimeText();
         }
-        else if (timerStarted && timeRemaining <= 0)
+        if (timerStarted && timeRemaining <= 0)
         {
-            timeRemaining = 0;
-            timerStarted = false;
             Debug.Log("Temps écoulé ! La base a explosé !");
+            canvas.SetActive(true);
+            alarm.StopAlarm();
+        }
+        if(timeRemaining<30 && !alarmPlayed)
+        {
+            Debug.Log(timeRemaining);
+            alarm.PlayAlarm();
+            alarmPlayed = true;
+        }
+        if (timeRemaining < -15 )
+        {
+            quitButton.QuitApplication();
         }
     }
 
@@ -61,15 +75,12 @@ public class GameManager : MonoBehaviour
     {
         timeRemaining = time;
         UpdateTimeText();
-        Debug.Log("DIFFICULTY");
         // Set difficulty settings for the digicode
         if (keypad != null)
         {
             if (selectedButton == easyButton)
             {
                 keypad.SetDifficulty(4, 6); // 4-digit code, 5 lives
-                Debug.Log("easy");
-
             }
             else if (selectedButton == mediumButton)
             {

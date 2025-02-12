@@ -155,7 +155,7 @@ public class ActivateAlarm : MonoBehaviour
     }
 
     // Fonction pour jouer l'alarme en boucle
-    void PlayAlarm()
+    public void PlayAlarm()
     {
         if (alarmAudioSource != null && alarmClip != null)
         {
@@ -166,7 +166,7 @@ public class ActivateAlarm : MonoBehaviour
     }
 
     // Fonction pour arrêter l'alarme
-    void StopAlarm()
+    public void StopAlarm()
     {
         if (alarmAudioSource != null)
         {
