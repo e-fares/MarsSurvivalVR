@@ -1,49 +1,51 @@
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 using TMPro;
-using UnityEngine.UI;
+
 public class VRDoorHandle : MonoBehaviour
 {
-    public float handleRotationLimit = 45f; // Max rotation for handle (up/down)
-
+    public float handleRotationLimit = 45f;
     public GameManager gameManager;
-    private XRGrabInteractable grabInteractable;
-    private Quaternion initialHandleRotation;
-    private bool isHandleActivated = false;
-    private float targetDoorRotation;
     public TMP_Text doorHandles;
-    int countDoor = 0;
+    public DoorOpener doorOpener;
+    private Quaternion initialHandleRotation;
+    private bool isReturning = false;
+    public int countDoor = 0;
+
     void Start()
     {
-        grabInteractable = GetComponent<XRGrabInteractable>();
-        grabInteractable.onSelectExited.AddListener(HandleReleased);
         initialHandleRotation = transform.localRotation;
     }
 
     void Update()
     {
-      
+        if (isReturning)
+        {
+            float rotationSpeed = 200f;  // Adjust for smoothness
+            transform.localRotation = Quaternion.RotateTowards(transform.localRotation, initialHandleRotation, rotationSpeed * Time.deltaTime);
+
+            if (Quaternion.Angle(transform.localRotation, initialHandleRotation) < 0.1f)
+            {
+                transform.localRotation = initialHandleRotation;
+                isReturning = false;
+                GetComponent<BoxCollider>().enabled = false;
+            }
+        }
     }
 
-    public void HandleReleased(XRBaseInteractor interactor)
+    public void HandleReleased()
     {
-        float handleAngle = Quaternion.Angle(initialHandleRotation, transform.localRotation);
+        isReturning = true;  // Trigger the return rotation
 
-        // Check if the handle was moved enough to trigger the door
-        if (handleAngle > handleRotationLimit * 0.5f)
-        {
-            isHandleActivated = true;
-            countDoor++;
-        }
+        countDoor++;
         doorHandles.text = $"3. Unlock door ({countDoor}/2)";
-        if(countDoor ==2)
+
+        if (countDoor == 2)
         {
+            doorOpener.OpenDoor();
             doorHandles.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : doorHandles.color;
+            gameManager.Victory();
         }
-
-
-
-        // Reset the handle position
-        transform.localRotation = initialHandleRotation;
+        
     }
 }

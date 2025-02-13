@@ -1,62 +1,77 @@
 using UnityEngine;
-using UnityEngine.UI; // For UI elements
-
+using UnityEngine.EventSystems; // Nécessaire pour OnPointerDown / OnPointerUp
 public class TurnWheelGradual : MonoBehaviour
 {
-    public ParticleSystem gasParticleSystem;  // Reference to gas particle system
-    public float maxRotation = 90f;           // Maximum wheel rotation
-    public float minRotation = 0f;            // Minimum wheel rotation
-    public float minEmissionRate = 0f;        // Minimum particle emission rate
-    public float maxEmissionRate = 50f;       // Maximum particle emission rate
-
-    private float currentRotation = 0f;       // Current wheel rotation
-    private int clickCount = 0;               // Tracks button clicks (max 3)
+    public ParticleSystem gasParticleSystem;  // Référence au gaz
+    public float rotationSpeed = 50f;         // Vitesse de rotation en degrés/seconde
+    public float maxRotation = 90f;           // Angle max du volant
+    public float minRotation = 0f;            // Angle min du volant
+    public float minEmissionRate = 0f;        // Débit min des particules
+    public float maxEmissionRate = 50f;       // Débit max des particules
+    public GameObject old_image;
+    public GameObject new_image;
+    private bool isTurning = false;           // Vérifie si on maintient l’interaction
+    private float currentRotation = 0f;       // Rotation actuelle du volant
     public GameManager gameManager;
     public TMPro.TextMeshProUGUI fixGazLeak;
-    public static int playerScore = 0;
-    public GameObject oldSign;
-    public GameObject newSign;
+    public static int playerScore = 0; // Variable globale statique
 
     void Start()
     {
         currentRotation = transform.localEulerAngles.x;
-
     }
 
-    public void OnButtonClick()
+    void Update()
     {
-        if (clickCount < 3) // 3 clicks needed for full rotation
+        if (isTurning)
         {
-            clickCount++;
-            float rotationStep = (maxRotation - minRotation) / 3; // Divide into 3 steps
-            currentRotation = Mathf.Clamp(currentRotation + rotationStep, minRotation, maxRotation);
+            RotateWheel(); // Continue la rotation tant que isTurning est vrai
+        }
+    }
+
+    // Quand on appuie sur le volant (OnPointerDown), commence la rotation
+    public void OnPointerDown()
+    {
+        isTurning = true;
+    }
+    // Quand on relâche le volant (OnPointerUp), arrête la rotation
+    public void OnPointerUp()
+    {
+        isTurning = false;
+    }
+    private void RotateWheel()
+    {
+        float rotationStep = rotationSpeed * Time.deltaTime;
+        float newRotation = Mathf.Clamp(currentRotation + rotationStep, minRotation, maxRotation);
+        if (newRotation != currentRotation)
+        {
+            currentRotation = newRotation;
             transform.localEulerAngles = new Vector3(currentRotation, transform.localEulerAngles.y, transform.localEulerAngles.z);
             AdjustGasEmission();
         }
     }
 
-    // Adjusts the intensity of gas emission based on the number of clicks
+    // Ajuste l'intensité des particules en fonction de la rotation
     void AdjustGasEmission()
     {
         if (gasParticleSystem != null)
         {
             var emission = gasParticleSystem.emission;
-            float normalizedRotation = (float)clickCount / 3; // Goes from 0 to 1 over three clicks
+            float normalizedRotation = (currentRotation - minRotation) / (maxRotation - minRotation);
             float newEmissionRate = Mathf.Lerp(maxEmissionRate, minEmissionRate, normalizedRotation);
             emission.rateOverTime = newEmissionRate;
 
-            // Stop gas ONLY when rotation is fully completed
-            if (clickCount == 3)
+            if (newEmissionRate <= 0.1f)
             {
                 gasParticleSystem.Stop();
                 playerScore += 1;
-                fixGazLeak.text = $"2. Fix gas leak ({playerScore}/2)";
-                oldSign.SetActive(false);
-                newSign.SetActive(true);
-                if (playerScore == 2)
+                fixGazLeak.text = $"2. Fix gaz leak ({playerScore}/2)";
+                old_image.SetActive(false);
+                new_image.SetActive(true);
+                if (playerScore  == 2)
                 {
-                    fixGazLeak.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : fixGazLeak.color;
                     gameManager.Victory();
+                    fixGazLeak.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : fixGazLeak.color;
                 }
             }
             else if (!gasParticleSystem.isPlaying)

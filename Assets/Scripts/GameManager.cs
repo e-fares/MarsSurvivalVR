@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.EventSystems;
 using UnityEngine.SocialPlatforms.Impl;
 using System.Data;
+ using UnityEngine.SceneManagement;
 //using System.Diagnostics;
 
 public class GameManager : MonoBehaviour
@@ -43,12 +44,12 @@ public class GameManager : MonoBehaviour
         alarmPlayed = false;
         timeRemaining = 99999;
         // Ajout des événements aux boutons de difficulté
-        AddEventTrigger(easyButton, () => SelectDifficulty(2 * 60, easyButton));
+      /*  AddEventTrigger(easyButton, () => SelectDifficulty(15 * 60, easyButton));
         AddEventTrigger(mediumButton, () => SelectDifficulty(10 * 60, mediumButton));
         AddEventTrigger(hardButton, () => SelectDifficulty(7 * 60, hardButton));
 
         // Ajout de l'événement au bouton start
-        AddEventTrigger(startButton, StartGame);
+        AddEventTrigger(startButton, StartGame);*/
     }
 
     void Update()
@@ -73,15 +74,17 @@ public class GameManager : MonoBehaviour
         }
         if (timeRemaining < -15 )
         {
-            quitButton.QuitApplication();
+         
+             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            
+          
         }
         
     }
 
-    void SelectDifficulty(float time, EventTrigger selectedButton)
+    public void SelectDifficulty(float time, EventTrigger selectedButton)
     {
         timeRemaining = time;
-        UpdateTimeText();
         // Set difficulty settings for the digicode
         if (keypad != null)
         {
@@ -100,6 +103,30 @@ public class GameManager : MonoBehaviour
         }
 
     }
+    public void SetDifficultyEasy(float time)
+    {
+        timeRemaining = time;
+        UpdateTimeText();
+
+        keypad.SetDifficulty(4, 6, isColorBlind.activeInHierarchy); // 4-digit code, 5 lives
+        
+    }
+    public void SetDifficultyMedium(float time)
+    {
+        timeRemaining = time;
+        UpdateTimeText();
+
+        keypad.SetDifficulty(4, 5, isColorBlind.activeInHierarchy); // 6-digit code, 3 lives
+
+    }
+    public void SetDifficultyHard(float time)
+    {
+        timeRemaining = time;
+        UpdateTimeText();
+
+        keypad.SetDifficulty(4, 4, isColorBlind.activeInHierarchy); // 8-digit code, 2 lives
+
+    }
     public void Victory()
     {
         CurrentMissionCount += 1;
@@ -109,7 +136,7 @@ public class GameManager : MonoBehaviour
             canvasVictory.SetActive(true);
         }
     }
-        void StartGame()
+        public void StartGame()
     {
         if (timeRemaining > 0 && !timerStarted)
         {

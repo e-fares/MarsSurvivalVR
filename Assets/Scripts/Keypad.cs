@@ -304,20 +304,7 @@ namespace NavKeypad
                     StartCoroutine(DisplayResultRoutine(true));
                 }
             }
-            else
-            {
-                totalLives--;
-                UpdateLivesUI();
-                if (totalLives <= 0)
-                {
-                    Debug.Log("Out of Lives! Game Over.");
-                    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-                }
-                else
-                {
-                    StartCoroutine(DisplayResultRoutine(false));
-                }
-            }
+            
         }
 
         private IEnumerator DisplayResultRoutine(bool granted)
@@ -416,13 +403,12 @@ namespace NavKeypad
         {
             if (instructionText != null)
             {
-                instructionText.text = "Accès Sécurisé – Instructions\n" +
-                                       "Un coffre de sécurité est dissimulé à proximité.\n" +
-                                       "Repérez les particules lumineuses qui l’entourent.\n" +
-                                       "Approchez-vous et observez-le attentivement.\n" +
-                                       "Retrouvez les chiffres qui correspondent au code couleur au dessus du keypad.\n\n" +
-                                       "Restez vigilant et mémorisez-le.\n" +
-                                       "Une fois saisi sur le terminal, l’accès sera débloqué.";
+                instructionText.text = "Pour reactiver l'electricite, entrez le bon code.\n" +
+                                       "L'acces a ce dernier est sécurise.\r\n\n" +
+                                       "Approchez-vous du coffre de securite situe a proximite\r\n\n" +
+                                       "et choisissez les bonnes couleurs\r\n\n" +
+                                       "Cela vous revelera la combinaison correcte..\n\n";
+                                       
             }
         }
 
@@ -430,4 +416,6 @@ namespace NavKeypad
     }
   
 }
+
+
     

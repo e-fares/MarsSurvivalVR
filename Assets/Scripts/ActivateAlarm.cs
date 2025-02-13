@@ -144,12 +144,12 @@ public class ActivateAlarm : MonoBehaviour
 
     public void TurnOnAllLights()
     {
-        Light[] allLights = FindObjectsOfType<Light>(); // Trouve toutes les lumières dans la scène
+        /*Light[] allLights = FindObjectsOfType<Light>(); // Trouve toutes les lumières dans la scène
 
         foreach (Light light in allLights)
         {
             light.enabled = true; // Allume chaque lumière
-        }
+        }*/
 
         Debug.Log("Toutes les lumières ont été éteintes !");
     }

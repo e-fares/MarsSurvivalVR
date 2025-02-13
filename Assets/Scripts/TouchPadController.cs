@@ -10,20 +10,22 @@ public class TouchPadController : MonoBehaviour
     public GameObject UIInteractor;
     public GameObject teleportInteractor;
     public GameObject locomotionSystem;
-
+    TeleportationArea[] teleportationAreas = new TeleportationArea[99];
     private InputDevice leftController;
-    public TMP_Text textInfo;
     void Start()
     {
+         teleportationAreas = FindObjectsOfType<TeleportationArea>();
+
         leftController = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
 
         EnableUIInteraction();
 
     }
-
+    
   
-    // Update is called once per frame
-    void Update()
+
+// Update is called once per frame
+void Update()
     {
 
         if (leftController.isValid)
@@ -53,15 +55,27 @@ public class TouchPadController : MonoBehaviour
         UIInteractor.SetActive(true);
         teleportInteractor.SetActive(false);
         locomotionSystem.SetActive(false);
-        textInfo.text = "Interacting Mode";
+        foreach (var area in teleportationAreas)
+        {
+            area.enabled = false;  // Disable the script
+        }
+
+        Debug.Log("All Teleportation Areas have been deactivated.");
     }
+
     private void EnableTeleportation()
     {
         UIInteractor.SetActive(false);
         teleportInteractor.SetActive(true);
         locomotionSystem.SetActive(true);
-        textInfo.text = "Teleportation Mode";
-
+    foreach (var area in teleportationAreas)
+    {
+        area.enabled = true;  // Enable the script
     }
+
+    Debug.Log("All Teleportation Areas have been activated.");
+}
+
+   
 
 }
