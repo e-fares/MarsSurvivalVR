@@ -7,7 +7,6 @@ public class VRDoorHandle : MonoBehaviour
     public float handleRotationLimit = 45f;
     public GameManager gameManager;
     public TMP_Text doorHandles;
-    public DoorOpener doorOpener;
     private Quaternion initialHandleRotation;
     private bool isReturning = false;
     public static int countDoor = 0;
@@ -46,7 +45,6 @@ public class VRDoorHandle : MonoBehaviour
 
         if (countDoor == 2)
         {
-            doorOpener.OpenDoor();
             doorHandles.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : doorHandles.color;
             gameManager.Victory();
         }

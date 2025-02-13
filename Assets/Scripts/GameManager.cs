@@ -36,7 +36,7 @@ public class GameManager : MonoBehaviour
     private bool alarmPlayed;
     public GameObject canvasLoss;
     public GameObject canvasVictory;
-    public int MissionMax = 3;
+    public int MissionMax = 4;
     public int CurrentMissionCount=0;
     public bool isWin;
     void Start()
@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour
 
             alarm.StopAlarm();
         }
-        if(timeRemaining<30 && !alarmPlayed)
+        if(timeRemaining<30 && !alarmPlayed && !isWin)
         {
             Debug.Log(timeRemaining);
             alarm.PlayAlarm();
