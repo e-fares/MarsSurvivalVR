@@ -38,9 +38,10 @@ public class GameManager : MonoBehaviour
     public GameObject canvasVictory;
     public int MissionMax = 3;
     public int CurrentMissionCount=0;
-    
+    public bool isWin;
     void Start()
     {
+        isWin = false;
         alarmPlayed = false;
         timeRemaining = 99999;
         // Ajout des événements aux boutons de difficulté
@@ -60,10 +61,11 @@ public class GameManager : MonoBehaviour
             timeRemaining -= Time.deltaTime;
             UpdateTimeText();
         }
-        if (timerStarted && timeRemaining <= 0)
+        if (timerStarted && timeRemaining <= 0 && !isWin)
         {
             Debug.Log("Temps écoulé ! La base a explosé !");
             canvasLoss.SetActive(true);
+
             alarm.StopAlarm();
         }
         if(timeRemaining<30 && !alarmPlayed)
@@ -134,6 +136,7 @@ public class GameManager : MonoBehaviour
         {
             timeRemaining = 0;
             canvasVictory.SetActive(true);
+            isWin = true;
         }
     }
         public void StartGame()

@@ -10,12 +10,16 @@ public class VRDoorHandle : MonoBehaviour
     public DoorOpener doorOpener;
     private Quaternion initialHandleRotation;
     private bool isReturning = false;
-    public int countDoor = 0;
+    public static int countDoor = 0;
 
     void Start()
     {
         initialHandleRotation = transform.localRotation;
     }
+    public int getCount()
+    {
+
+    return countDoor; }
 
     void Update()
     {
