@@ -36,7 +36,7 @@ public class GameManager : MonoBehaviour
     private bool alarmPlayed;
     public GameObject canvasLoss;
     public GameObject canvasVictory;
-    public int MissionMax = 4;
+    public int MissionMax = 5;
     public int CurrentMissionCount=0;
     public bool isWin;
     public GameObject old_image;

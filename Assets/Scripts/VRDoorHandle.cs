@@ -45,6 +45,7 @@ public class VRDoorHandle : MonoBehaviour
 
         if (countDoor == 2)
         {
+            countDoor = 5000;
             doorHandles.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : doorHandles.color;
             gameManager.Victory();
         }
