@@ -304,8 +304,10 @@ namespace NavKeypad
                     StartCoroutine(DisplayResultRoutine(true));
                 }
             }
-           
-            StartCoroutine(DisplayResultRoutine(true));
+            else
+            {
+                StartCoroutine(DisplayResultRoutine(false));
+            }
         }
 
         private IEnumerator DisplayResultRoutine(bool granted)

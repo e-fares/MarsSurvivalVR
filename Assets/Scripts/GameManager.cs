@@ -22,7 +22,7 @@ public class GameManager : MonoBehaviour
     // Référence au texte affichant le temps restant
     public TMP_Text timeText;
     public TMP_Text timeTextMinimap;
-
+    public Planets planets;
     // Temps avant l'explosion de la base en secondes
     private float timeRemaining;
     private float timeRemaining2;
@@ -39,11 +39,16 @@ public class GameManager : MonoBehaviour
     public int MissionMax = 4;
     public int CurrentMissionCount=0;
     public bool isWin;
+    public GameObject old_image;
+    public GameObject new_image;
+    public TMP_Text planetsText;
     void Start()
     {
         isWin = false;
         alarmPlayed = false;
         timeRemaining = 99999;
+
+
         // Ajout des événements aux boutons de difficulté
       /*  AddEventTrigger(easyButton, () => SelectDifficulty(15 * 60, easyButton));
         AddEventTrigger(mediumButton, () => SelectDifficulty(10 * 60, mediumButton));
@@ -70,7 +75,7 @@ public class GameManager : MonoBehaviour
         }
         if(timeRemaining<30 && !alarmPlayed && !isWin)
         {
-            Debug.Log(timeRemaining);
+
             alarm.PlayAlarm();
             alarmPlayed = true;
         }
@@ -81,7 +86,7 @@ public class GameManager : MonoBehaviour
             
           
         }
-        
+        CheckPlanetCount();
     }
 
     public void SelectDifficulty(float time, EventTrigger selectedButton)
@@ -128,6 +133,18 @@ public class GameManager : MonoBehaviour
 
         keypad.SetDifficulty(4, 4, isColorBlind.activeInHierarchy); // 8-digit code, 2 lives
 
+    }
+    public void CheckPlanetCount()
+    {
+        planetsText.text = $"5. Reorder planets ({planets.GetPlanetCount()}/9)";
+
+        if (planets.GetPlanetCount() == 9) { 
+            Victory();
+            old_image.SetActive(false);
+            new_image.SetActive(true);
+            planetsText.color = ColorUtility.TryParseHtmlString("#4CFFB3", out Color newColor) ? newColor : planetsText.color;
+
+        }
     }
     public void Victory()
     {

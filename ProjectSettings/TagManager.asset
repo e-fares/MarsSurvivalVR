@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - LightOn
+  - TrackingObject
+  - Actors
+  - Planet_Slot
+  - PlanetSlot
   layers:
   - Default
   - TransparentFX
